@@ -68,7 +68,7 @@ void start_screen(){
     
     // score window
     score = newwin(8,20,3,55);
-    mvwprintw(score,1,7,"SOCRE");
+    mvwprintw(score,1,7,"SCORE");
     wborder(score,'x','x','x','x','x','x','x','x');
 
     // board window
