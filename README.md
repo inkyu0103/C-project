@@ -50,4 +50,8 @@
 
 
 
+참고 URL
+http://pastebin.com/p5NPZD5f     (snake.h)
+http://pastebin.com/AZzHSifV       (snake.cpp)
+http://pastebin.com/apdXFugL       (main.cpp)
 
