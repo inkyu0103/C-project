@@ -9,7 +9,6 @@ snakeBody::snakeBody(){
 }
 
 
-
 snakeBody::snakeBody(int col, int row){
     x=col;
     y=row;
@@ -21,31 +20,45 @@ snake::snake(){
     setlocale(LC_ALL,"");
 
     
-    food.x=0;
-    food.y=0;
+   
+    get = false;
     
-    get = 0;
     
-    int x,y; // play의 최대 좌표를 받아오기 위한 변수
-    
-
     initscr(); 
+    keypad(stdscr,true);
+    nodelay(stdscr,true);
     curs_set(0); 
     noecho();
     resize_term(140,80);
     mvprintw(1,1,"C++ Project");
     border('*','*','*','*','*','*','*','*');
-    
 
-    // play window
+    refresh();
+
+
+     // play window
     play = newwin(23,46,3,3);
+
     getmaxyx(play,y,x);
-    wborder(play,'-','-','-','-','-','-','-','-');
+    wborder(play,'x','x','x','x','x','x','x','x');
+    wrefresh(play);
+     // score window
+    score = newwin(8,20,3,55);
+    mvwprintw(score,1,7,"SOCRE");
+    wborder(score,'x','x','x','x','x','x','x','x');
+    wrefresh(score);
+
+    // board window
+    mission = newwin(8,20,20,55);
+    wbkgd(mission,COLOR_PAIR(3));
+    mvwprintw(mission,1,7,"BOARD");
+    wborder(mission,'x','x','x','x','x','x','x','x');
+    wrefresh(mission);
+    
 
     // making map
     // Dynamic allocation
     
-    int** map;
     map = new int*[y];   // row 개만큼 할당 받고, 각 row마다 col개만큼 다시 할당받는다.
     for(int i=0;i<y;i++){
         map[i]=new int[x];
@@ -74,86 +87,45 @@ snake::snake(){
     }
     
 
-
-
-    
-    // score window
-    score = newwin(8,20,3,55);
-    mvwprintw(score,1,7,"SCORE");
-    wborder(score,'x','x','x','x','x','x','x','x');
-
-    // board window
-    mission = newwin(8,20,20,55);
-    wbkgd(mission,COLOR_PAIR(3));
-    mvwprintw(mission,1,7,"BOARD");
-    wborder(mission,'x','x','x','x','x','x','x','x');
-
-    
-
-
-
-    food_char = '*';
-    for(int i=0;i<3;i++){
+//seg fault
+// snake의 시작점 , 뱀 본체 준비
+for(int i=0;i<3;i++){
         Rsnake.push_back(snakeBody(24+i,11)); 
     }
-    //seg fault
 
-    for(int i=0;i<Rsnake.size();i++){
-        mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"o");
-    }
+// 맵에 뱀을 그리는 과정
+for(int i=0;i<Rsnake.size();i++){
+        mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"3");
+    }    
 
-    //food를 그린다.
-    mvwprintw(play,food.y,food.x,"*");
+//밥을 놓읍시다
+    generatefood();
 
+//초기 이동 방향
+    direction='l';
 
-    
-    
-
-
-
-
-
-
-
-    //update
-    refresh();
+//화면 업데이트
     wrefresh(play);
-    wrefresh(score);
-    wrefresh(mission);
-    
-
-    
-    
-
+// 자잘한 변수들 (다음 단계에서 사용할 것들)
+    food_char = '*';
     socre = 0;
 
-    
-    // resize_term(행=row=y ,열=col=x)
-   
-    
-    // max_height = 23 = row=y, max_width 46= col=x;
 
-    // making map
+    // resize_term(행=row=y ,열=col=x)
+    // max_height = 23 = row=y, max_width 46= col=x;
     // map[row][col] = (col,row);
 
-   
-    // initail food x,y
-
- 
 
     //  3,3부터 시작
     //  가로 46 ,세로 23
     //  (3,3) ~ (48,3) 가로 최대
     //  (3,3) ~ (3,25) 세로 최대
-
     // 뱀 초기 길이 3
     // bodychar --> 뱀을 구성할 문자
     
    
 
-    getch();
-    delwin(play);
-    endwin();
+   
 
  
 }
@@ -165,69 +137,154 @@ snake::~snake(){
 }
 
 void snake::generatefood(){
+    // 밥을 줄까 독을 줄까 결정해주는 rand
     while(true){
-        int food_x = rand()%max_width+1;
-        int food_y = rand()%max_height+1;
-
+        int food_x = rand()%x+2;
+        int food_y = rand()%y+2;
         for(int i=0;i<Rsnake.size();i++){
             if(Rsnake[i].x==food_x && Rsnake[i].y == food_y){
                 continue;
             }
         }
+        food.x = food_x;
+        food.y = food_y;
+        break;
     }
+
+
+    mvwprintw(play,food.y,food.x,"+"); // 음식 추가
+    wrefresh(play);  // 음식 업데이트
 }
 
+
+bool snake::collision(){
+
+    // 벽에 부딪힌 경우
+    if(map[Rsnake[0].y][Rsnake[0].x]==1){
+        return true;
+    }
+    
+    //뱀이 자기를 물은 경우
+    for(int i=2;i<Rsnake.size();i++){
+        if(Rsnake[0].x == Rsnake[i].x && Rsnake[0].y == Rsnake[i].y){
+            return true;
+        }
+    }
+
+    //밥을 먹은 경우
+
+    if(Rsnake[0].x==food.x && Rsnake[0].y == food.y){
+        get = true;
+        generatefood();
+        socre +=10;
+
+        // board에 점수 올라 가는 것 구현해야함
+
+    }else{
+        get = false;
+    }
+    return false;
+
+}
+
+
 void snake::move(){
-    int tmp = getch();
-    switch(tmp)
-    {
+
+    // 키를 입력 받습니다.
+    int key = getch();
+
+    switch(key){
         case KEY_LEFT:
-            if (direction !='r')
-                direction='l';
-            break;
-
-         case KEY_UP:
-            if (direction !='d')
-                direction='u';
-            break;
-
-         case KEY_DOWN:
-            if (direction !='u')
-                direction='d';
-            break;
-
-         case KEY_RIGHT:
-            if (direction !='l')
-                direction='r';
-            break;   
+			if(direction =='r'){
+                flag =1;
+                break;
+            }
+				direction='l';
+			break;
+		
+        case KEY_UP:
+			if(direction=='d'){
+                flag=1;
+                break;
+            }
+			direction='u';
+			break;
+		
+        
+        case KEY_DOWN:
+			if(direction =='u'){
+                flag = 1;
+                break;
+            }
+			direction='d';
+			break;
+		
+        
+        case KEY_RIGHT:
+			if(direction =='l'){
+                flag =1 ;
+                break;
+            }
+			direction='r';
+			break;
+		
     }
 
-    if(!get)
-    {
-        mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
-        refresh();
-        Rsnake.pop_back();
-    }
-    if(direction=='l'){
-        Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x-1, Rsnake[0].y));
-    }else if (direction=='r'){
-        Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x+1,Rsnake[0].y));
-    }else if(direction == 'u'){
-        Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y-1));
-    }else if(direction=='d'){
-        Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y+1));
-    }
+    if(!get){
+		mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
+        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;
+		Rsnake.pop_back();
+        wrefresh(play);
+        }
+    if(direction=='l')
+	{
+		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x-1,Rsnake[0].y));
+        if(map[Rsnake[0].y][Rsnake[0].x]==1){
+            flag = 1;
+        }
+	}else if(direction=='r'){
+		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x+1,Rsnake[0].y));
+        if(map[Rsnake[0].y][Rsnake[0].x]==1){
+            flag = 1;
+        }
 
-    mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"o");
-    refresh();
+	}else if(direction=='u'){
+		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y-1));
+        if(map[Rsnake[0].y][Rsnake[0].x]==1){
+            flag = 1;
 
+        }
 
-
+	}else if(direction=='d'){
+		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y+1));
+        if(map[Rsnake[0].y][Rsnake[0].x]==1){
+            flag = 1;
+        }
+     
+	}
+	    mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"3");
+        map[Rsnake[0].y][Rsnake[0].x]=3;
+        wrefresh(play);
+    
 }
 
 void snake::start(){
+    
     while(1){
+        if(collision()){
+            mvwprintw(play,12,36,"gameOVer");
+            break;
+        }
         move();
+        if (flag==1){
+            break;
+        }
+        //flag initialize
+        flag =0;
+        //usleep 값에따라 지렁이 속도가 달라집니다.
+        usleep(90000);
+        
     }
+
 }
 
