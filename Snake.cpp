@@ -167,7 +167,7 @@ void snake::generatepoison(){
         poison.y = poison_y;
 
         
-        //이게 밥이나 독약을 map 배열에서 표시를 해야한다고 되어있긴 한데, 제 능력으로는 계속 segmentaion fault가 나서 일단 보류했습니다.
+        //이게 밥이나 독약을 map 배열에서 표시를 해야한다고 되어있긴 한데, 제 능력으로는 계속 segmentation fault가 나서 일단 보류했습니다.
         //map[food.y][food.x] = 4;
 
         break;
