@@ -49,9 +49,23 @@
 </ul>
 
 
+### 현재 구현 된 것
 
-참고 URL
-http://pastebin.com/p5NPZD5f     (snake.h)
-http://pastebin.com/AZzHSifV       (snake.cpp)
-http://pastebin.com/apdXFugL       (main.cpp)
+-움직이는 것
+-밥먹으면 길이가 늘어나는 것
+-독약 먹으면 길이가 줄어드는 것
+
+-밥(+)먹으면 10점 늘어나는 것
+-독약(-) 먹으면 10점 감소하는 것
+
+-몸 길이가 2가 되면 Game over
+-점수가 0보다 작아지면 Game over
+
+### 구현 해야 하는 것
+- 밥 및 독약이 특정 시간이 지나면 사라지고 다른 장소에 나타나게 해야 한다
+- 미션 만들기 --> 클리어시 새로운 맵 만들기
+- 통과할 수 있는 벽 만들기 --> 2차원 배열 map[row][col]의 값이 1인 곳 2개를 선정하여 통과할 수 있게 만들어야 합니다. 
+
+
+
 
