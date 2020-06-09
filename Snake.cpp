@@ -19,8 +19,10 @@ snakeBody::snakeBody(int col, int row){
 snake::snake(){
     setlocale(LC_ALL,"");
     
-   
+    // 뭔가 먹었니?
     get = false;
+    
+    // 독 먹었니?
     poi = false;
     
     
@@ -107,7 +109,7 @@ for(int i=0;i<Rsnake.size();i++){
         map[Rsnake[i].y][Rsnake[i].x] = 3;
     }    
 
-//밥을 놓읍시다
+//밥과 독을 놓읍시다.
     generatefood();
     generatepoison();
 
@@ -117,7 +119,6 @@ for(int i=0;i<Rsnake.size();i++){
 //화면 업데이트
     wrefresh(play);
 // 자잘한 변수들 (다음 단계에서 사용할 것들)
-    point = 0; 
 
 
     // resize_term(행=row=y ,열=col=x)
@@ -144,18 +145,19 @@ snake::~snake(){
     endwin();
 }
 
-
+// 독을 만드는 과정
 void snake::generatepoison(){
     while(true){
         int poison_x = rand()%x+5;
         int poison_y = rand()%y+1;
 
+        // 독을 만들었는데, 그게 벽 위라면? 다시 만들어라
         if ( map[poison_y][poison_x] == 1 ||map[poison_y][poison_x] == 2 ){
             continue;
         }
 
         
-
+        
         for(int i=0;i<Rsnake.size();i++){
             if(Rsnake[i].x==poison_x && Rsnake[i].y == poison_y){
                 continue;
@@ -164,13 +166,15 @@ void snake::generatepoison(){
         poison.x = poison_x;
         poison.y = poison_y;
 
+        
+        //이게 밥이나 독약을 map 배열에서 표시를 해야한다고 되어있긴 한데, 제 능력으로는 계속 segmentaion fault가 나서 일단 보류했습니다.
         //map[food.y][food.x] = 4;
 
         break;
     }
 
-    mvwprintw(play,poison.y,poison.x,"-"); // 음식 추가
-    wrefresh(play);  // 음식 업데이트
+    mvwprintw(play,poison.y,poison.x,"-"); // 독 추가
+    wrefresh(play);  // 독 업데이트
 }
 
 
@@ -256,6 +260,15 @@ bool snake::collision(){
 }
 
 
+
+
+
+    /*
+    밥 먹는 것은 여기서 처리를 하였는데, 독 먹는것도 move에서 어떻게든 처리를 해서 간결하게 해보려 했는데...
+    쉽지 않네요 ;ㅁ; 
+    가능 하신 능력자분이 계신다면 부탁드려요.
+    
+    */
 void snake::move(){
 
     // 키를 입력 받습니다.
@@ -298,10 +311,13 @@ void snake::move(){
 		
     }
 
+    // 벽에 부딪힌 것을 표현 하기 위해서 시도를 해봤는데, flag를 사용하는게 그나마 쉬운 것 같아서 사용했습니다.
+    // flag == > 벽에 부딪혔니? --> flag가 1이면 맨 아래의 start() 함수에서 break를 통해 게임이 끝나게 됩니다.
+
 
     if(!get){
 		mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
-        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;
+        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;  // 지나간 자리는 map에서 0으로 초기화
 		Rsnake.pop_back();
         wrefresh(play);
         }
@@ -361,7 +377,8 @@ void snake::start(){
         }
         //flag initialize
         flag =0;
-        //usleep 값에따라 지렁이 속도가 달라집니다.
+
+        //usleep 값에따라 지렁이 속도가 달라집니다. 원하시는 대로 설정 해주세요.
         usleep(90000);
         
         
