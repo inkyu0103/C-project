@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 #include "Snake.h"
-=======
 #include<iostream>
 #include<ncurses.h>
 #include<clocale>
@@ -92,10 +90,8 @@ void start_screen(){
     getch();
     delwin(play);
     endwin();
->>>>>>> 6cb4d60d1a3970c580bf67ff50c8cce651ac9fc5
 
-
-using namespace std;
+}
 
 
 int main(){

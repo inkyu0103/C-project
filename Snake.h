@@ -9,7 +9,9 @@
 
 #ifndef SNAKE_H
 #define SNAKE_H
-
+#define INIT_LENGTH 3
+#define MAX_LENGTH 10
+#define INIT_SPEED 100000
 struct snakeBody{
     int x,y;
     snakeBody(int col,int row);
@@ -32,6 +34,11 @@ class snake{
     int max_width; // o 
     int max_height;// o 
     int body_length; // 
+    int food_cnt;   //먹이 먹은 갯수
+    int poison_cnt; //독 먹은 갯수
+    int gate_cnt;   //gate 사용횟수
+    int speed_interval;
+    int current_speed;
     char direction; // o 
     bool get;
     bool poi;

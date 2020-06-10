@@ -52,9 +52,19 @@ snake::snake(){
      // score window
     score = newwin(8,20,3,55);
     point  = 0;
+    food_cnt = 0;
+    poison_cnt = 0;
+    gate_cnt = 0;
+    body_length = INIT_LENGTH + food_cnt - poison_cnt;
+    speed_interval = 15000;
+    current_speed = INIT_SPEED;
     mvwprintw(score,1,7,"SCORE");
-    mvwprintw(score,2,2,"Your Point : ");
-    mvwprintw(score,2,16,"%d",point);
+    mvwprintw(score,2,3,"B : ");
+    mvwprintw(score,3,3,"+ : ");
+    mvwprintw(score,4,3,"- : ");
+    mvwprintw(score,5,3,"G : ");
+    
+    
     wborder(score,'x','x','x','x','x','x','x','x');
     wrefresh(score);
 
@@ -105,7 +115,7 @@ for(int i=0;i<3;i++){
 
 // 맵에 뱀을 그리는 과정
 for(int i=0;i<Rsnake.size();i++){
-        mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"3");
+        mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"O");
         map[Rsnake[i].y][Rsnake[i].x] = 3;
     }    
 
@@ -132,11 +142,6 @@ for(int i=0;i<Rsnake.size();i++){
     //  (3,3) ~ (3,25) 세로 최대
     // 뱀 초기 길이 3
     
-   
-
-   
-
- 
 }
 
 snake::~snake(){
@@ -156,8 +161,6 @@ void snake::generatepoison(){
             continue;
         }
 
-        
-        
         for(int i=0;i<Rsnake.size();i++){
             if(Rsnake[i].x==poison_x && Rsnake[i].y == poison_y){
                 continue;
@@ -166,10 +169,8 @@ void snake::generatepoison(){
         poison.x = poison_x;
         poison.y = poison_y;
 
-        
         //이게 밥이나 독약을 map 배열에서 표시를 해야한다고 되어있긴 한데, 제 능력으로는 계속 segmentation fault가 나서 일단 보류했습니다.
         //map[food.y][food.x] = 4;
-
         break;
     }
 
@@ -185,8 +186,6 @@ void snake::generatefood(){
     while(true){
         int food_x = rand()%x+2;
         int food_y = rand()%y+2;
-
-        
 
         for(int i=0;i<Rsnake.size();i++){
             if(Rsnake[i].x==food_x && Rsnake[i].y == food_y){
@@ -225,17 +224,21 @@ bool snake::collision(){
     //독을 먹은 경우
     if(Rsnake[0].x==poison.x && Rsnake[0].y == poison.y){
         generatepoison();
-
-        point -=10;
-        if (point<0){
+        poison_cnt+=1;
+        // point -=10;
+        body_length = INIT_LENGTH + food_cnt - poison_cnt;
+        current_speed += speed_interval;
+       
+        if (body_length<3){
             return true;
         }
-        mvwprintw(score,2,16,"%d",point);
+        mvwprintw(score,4,10,"%d",poison_cnt);
+        mvwprintw(score,2,10,"%d",body_length);
         wrefresh(score);
         mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
         map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x]=0;
         Rsnake.pop_back();
-    
+        usleep(current_speed);
 
     }
 
@@ -245,12 +248,17 @@ bool snake::collision(){
         //map[food.y][food.x] = 3;
         get = true;
         generatefood(); 
-        
-        point +=10;
-        mvwprintw(score,2,16,"%d",point);
+        food_cnt+=1;
+        // point +=10;
+        body_length = INIT_LENGTH + food_cnt - poison_cnt;
+        current_speed -= speed_interval;
+        // mvwprintw(score,2,16,"%d",point);
+        mvwprintw(score,2,10,"%d",body_length);
+        mvwprintw(score,3,10,"%d",food_cnt);
         wrefresh(score);
     // board에 점수 올라 가는 것 구현해야함
-    
+        usleep(current_speed);
+
 
     }else{
         get = false;
@@ -347,7 +355,7 @@ void snake::move(){
         }
      
 	}
-    mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"3");
+    mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"O");
     map[Rsnake[0].y][Rsnake[0].x]=3;
     
     
@@ -379,7 +387,7 @@ void snake::start(){
         flag =0;
 
         //usleep 값에따라 지렁이 속도가 달라집니다. 원하시는 대로 설정 해주세요.
-        usleep(90000);
+        usleep(current_speed);
         
         
     }
