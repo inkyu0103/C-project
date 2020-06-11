@@ -84,7 +84,6 @@ void start_screen(){
     wrefresh(play);
     wrefresh(score);
     wrefresh(mission);
-    
 
     
     getch();
@@ -99,7 +98,4 @@ int main(){
     s.start();
     
     return 0;
-
-
-
 }

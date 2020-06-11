@@ -51,6 +51,8 @@ snake::snake(){
     wrefresh(play);
      // score window
     score = newwin(8,20,3,55);
+    //  mission window
+    mission = newwin(8,20,13,55);
     point  = 0;
     food_cnt = 0;
     poison_cnt = 0;
@@ -58,23 +60,30 @@ snake::snake(){
     body_length = INIT_LENGTH + food_cnt - poison_cnt;
     speed_interval = 15000;
     current_speed = INIT_SPEED;
-    mvwprintw(score,1,7,"SCORE");
+    mvwprintw(score,1,4,"Score Board");
     mvwprintw(score,2,3,"B : ");
     mvwprintw(score,3,3,"+ : ");
     mvwprintw(score,4,3,"- : ");
     mvwprintw(score,5,3,"G : ");
-    
-    
-    wborder(score,'x','x','x','x','x','x','x','x');
+    wborder(score,'|','|','-','-','-','-','|','|');
+    // wborder(score,'x','x','x','x','x','x','x','x');
     wrefresh(score);
 
-    // board window
-    mission = newwin(8,20,20,55);
-    wbkgd(mission,COLOR_PAIR(3));
-    mvwprintw(mission,1,7,"BOARD");
-    wborder(mission,'x','x','x','x','x','x','x','x');
+    mvwprintw(mission,1,5,"Mission");
+    mvwprintw(mission,2,3,"B : ( )");
+    mvwprintw(mission,3,3,"+ : ( )");
+    mvwprintw(mission,4,3,"- : ( )");
+    mvwprintw(mission,5,3,"G : ( )");
+    wborder(mission,'|','|','-','-','-','-','|','|');
     wrefresh(mission);
-    
+    // score window
+    // score = newwin(8,20,20,55);
+    // wbkgd(score,COLOR_PAIR(3));
+    // mvwprintw(score,1,7,"Score Board");
+    // wrefresh(score);
+    // wborder(score,'','-','-','|','|','-','-','-');
+    // mission window
+   
 
     // making map
     // Dynamic allocation
@@ -194,19 +203,20 @@ void snake::generatefood(){
         }
         food.x = food_x;
         food.y = food_y;
-
+        
         //map[food.y][food.x] = 4;
-
         break;
     }
 
     mvwprintw(play,food.y,food.x,"+"); // 음식 추가
     wrefresh(play);  // 음식 업데이트
+
 }
 
 
 bool snake::collision(){
 
+   
     // 몸 길이가 2 이하인 경우
 
     // 벽에 부딪힌 경우
@@ -222,7 +232,8 @@ bool snake::collision(){
     }
 
     //독을 먹은 경우
-    if(Rsnake[0].x==poison.x && Rsnake[0].y == poison.y){
+    if((Rsnake[0].x==poison.x) && (Rsnake[0].y == poison.y)){
+
         generatepoison();
         poison_cnt+=1;
         // point -=10;
@@ -244,10 +255,11 @@ bool snake::collision(){
 
 
     //밥을 먹은 경우
-    if(Rsnake[0].x==food.x && Rsnake[0].y == food.y){
+    if((Rsnake[0].x==food.x) && (Rsnake[0].y == food.y)){
         //map[food.y][food.x] = 3;
-        get = true;
+
         generatefood(); 
+        get = true;
         food_cnt+=1;
         // point +=10;
         body_length = INIT_LENGTH + food_cnt - poison_cnt;
@@ -258,19 +270,22 @@ bool snake::collision(){
         wrefresh(score);
     // board에 점수 올라 가는 것 구현해야함
         usleep(current_speed);
+        return false;
 
-
-    }else{
-        get = false;
     }
+    
+    else{
+       get=false;
+    }
+
+    
     return false;
 
 }
 
+void snake::make_gate(){
 
-
-
-
+}
     /*
     밥 먹는 것은 여기서 처리를 하였는데, 독 먹는것도 move에서 어떻게든 처리를 해서 간결하게 해보려 했는데...
     쉽지 않네요 ;ㅁ; 
@@ -361,14 +376,12 @@ void snake::move(){
     
     wrefresh(play);
 
-    
-    
-
 }
 
 void snake::start(){
     
-    while(1){
+    while(true){
+        
         if(collision()){
             wattron(play,COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -383,6 +396,7 @@ void snake::start(){
             wrefresh(play);
             break;
         }
+
         //flag initialize
         flag =0;
 

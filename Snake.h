@@ -10,7 +10,7 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 #define INIT_LENGTH 3
-#define MAX_LENGTH 10
+#define MAX_LENGTH 15
 #define INIT_SPEED 100000
 struct snakeBody{
     int x,y;
@@ -42,13 +42,16 @@ class snake{
     char direction; // o 
     bool get;
     bool poi;
-
+    time_t start_time;
+    time_t end_time;
+    double result;
     // snake's food
     snakeBody food; // o
     snakeBody poison; 
     char food_char;
     void generatefood();
     void generatepoison();
+    void make_gate();
     bool collision();
     void move();
     
