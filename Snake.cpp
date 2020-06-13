@@ -1,4 +1,5 @@
 #include "Snake.h"
+#include <time.h>
 using namespace std;
 
 
@@ -13,8 +14,19 @@ snakeBody::snakeBody(int col, int row){
     x=col;
     y=row;
 }
+gatePos::gatePos(){
+    g_x = 0;
+    g_y = 0;
+}
 
+gatePos::gatePos(int g_col,int g_row){
+    g_x = g_col;
+    g_y = g_row;
+}
 
+void snake::make_map(){
+    
+}
 //for snake class
 snake::snake(){
     setlocale(LC_ALL,"");
@@ -24,6 +36,10 @@ snake::snake(){
     
     // 독 먹었니?
     poi = false;
+
+    // configurtaion initial size
+    max_height = 23;
+    max_width = 46;
     
     
     initscr(); 
@@ -44,7 +60,7 @@ snake::snake(){
 
 
      // play window
-    play = newwin(23,46,3,3);
+    play = newwin(max_height,max_width,3,3);
 
     getmaxyx(play,y,x);
     wborder(play,'x','x','x','x','x','x','x','x');
@@ -93,7 +109,7 @@ snake::snake(){
         map[i]=new int[x];
     }
 
-    // mapping  mwv ( y,x)
+    // mapping  mwv (y,x)
     for(int row = 0;row< y;row++){
         for(int col = 0; col < x; col++){
             // Wall
@@ -162,8 +178,8 @@ snake::~snake(){
 // 독을 만드는 과정
 void snake::generatepoison(){
     while(true){
-        int poison_x = rand()%x+5;
-        int poison_y = rand()%y+1;
+        int poison_x = rand()%(x-4)+2;
+        int poison_y = rand()%(y-4)+2;
 
         // 독을 만들었는데, 그게 벽 위라면? 다시 만들어라
         if ( map[poison_y][poison_x] == 1 ||map[poison_y][poison_x] == 2 ){
@@ -193,8 +209,12 @@ void snake::generatepoison(){
 void snake::generatefood(){
     
     while(true){
-        int food_x = rand()%x+2;
-        int food_y = rand()%y+2;
+        int food_x = rand()%(x-4)+2;
+        int food_y = rand()%(y-4)+2;
+           if ( map[food_y][food_x] == 1 ||map[food_y][food_x] == 2 ){
+            continue;
+        }
+
 
         for(int i=0;i<Rsnake.size();i++){
             if(Rsnake[i].x==food_x && Rsnake[i].y == food_y){
@@ -219,8 +239,10 @@ bool snake::collision(){
    
     // 몸 길이가 2 이하인 경우
 
+
     // 벽에 부딪힌 경우
     if(map[Rsnake[0].y][Rsnake[0].x]==1){
+        // TODO :: 반대 게이트로 나오게
         return true;
     }
     
@@ -283,8 +305,63 @@ bool snake::collision(){
 
 }
 
-void snake::make_gate(){
+enum LayerType {
+    G1 = 0,
+    G2,
+    G3,
+    G4
+};
 
+void snake::make_gate(){
+    srand((unsigned int)time(0));
+    int firstLayer = rand()%4;
+    int secondLayer = rand()%4;
+
+    while (1)
+    {
+        switch ((enum LayerType)firstLayer)
+        {
+        case G1:
+            fgate.g_y = 1 + rand()%(max_width-4);    //gate1(0,rand)
+            break;
+        case G2:
+            fgate.g_x = 1 + rand()%(max_height-4);    //gate2(rand,0)
+            break;
+        case G3:
+            fgate.g_x = max_height-1;
+            fgate.g_y = 1 + rand()%(max_width-4);    //gate3(max,rand)
+            break;
+        case G4:
+            fgate.g_x = 1 + rand()%(max_height-4);    //gate4(rand,max)
+            fgate.g_y = max_width-1;
+            break;
+        }
+
+        switch ((enum LayerType)secondLayer)
+        {
+        case G1:
+            sgate.g_y = 1 + rand()%(max_width-4);    //gate1(0,rand)
+            break;
+        case G2:
+            sgate.g_x = 1 + rand()%(max_height-4);    //gate2(rand,0)
+            break;
+        case G3:
+            sgate.g_x = max_height-1;
+            sgate.g_y = 1 + rand()%(max_width-4);    //gate3(max,rand)
+            break;
+        case G4:
+            sgate.g_x = 1 + rand()%(max_height-4);    //gate4(rand,max)
+            sgate.g_y = max_width-1;
+            break;
+        }
+        if (fgate.g_x != fgate.g_x || sgate.g_y != sgate.g_y) break;
+    }
+
+    /* Set color gate */
+    mvwaddch(play,fgate.g_x,fgate.g_y,'X' | A_UNDERLINE | COLOR_PAIR(1));
+    mvwaddch(play,sgate.g_x,sgate.g_y,'X' | A_UNDERLINE | COLOR_PAIR(1));
+
+    wrefresh(play);
 }
     /*
     밥 먹는 것은 여기서 처리를 하였는데, 독 먹는것도 move에서 어떻게든 처리를 해서 간결하게 해보려 했는데...
@@ -379,9 +456,9 @@ void snake::move(){
 }
 
 void snake::start(){
-    
-    while(true){
-        
+    make_gate();
+
+    while(true){   
         if(collision()){
             wattron(play,COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");

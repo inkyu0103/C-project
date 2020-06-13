@@ -18,7 +18,11 @@ struct snakeBody{
     snakeBody();
 
 };
-
+struct gatePos{
+    int g_x,g_y;
+    gatePos(int g_col,int g_row);
+    gatePos();
+};
 
 class snake{
     std::vector<snakeBody> Rsnake;
@@ -42,18 +46,22 @@ class snake{
     char direction; // o 
     bool get;
     bool poi;
+    gatePos fgate;
+    gatePos sgate;
     time_t start_time;
     time_t end_time;
     double result;
     // snake's food
     snakeBody food; // o
     snakeBody poison; 
+    gatePos gate;
     char food_char;
     void generatefood();
     void generatepoison();
     void make_gate();
     bool collision();
     void move();
+    void make_map();
     
 
     public :
