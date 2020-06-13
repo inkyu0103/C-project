@@ -12,6 +12,7 @@
 #define INIT_LENGTH 3
 #define MAX_LENGTH 15
 #define INIT_SPEED 100000
+using namespace std;
 struct snakeBody{
     int x,y;
     snakeBody(int col,int row);
@@ -23,9 +24,17 @@ struct gatePos{
     gatePos(int g_col,int g_row);
     gatePos();
 };
+enum LayerType {
+    G1 = 0,
+    G2,
+    G3,
+    G4
+};
 
 class snake{
-    std::vector<snakeBody> Rsnake;
+    
+    vector<snakeBody> Rsnake;
+    vector<snakeBody> Tempsnake;
     WINDOW * score;
     WINDOW * mission;
     WINDOW * play;
@@ -48,6 +57,8 @@ class snake{
     bool poi;
     gatePos fgate;
     gatePos sgate;
+    int fline;
+    int sline;
     time_t start_time;
     time_t end_time;
     double result;
@@ -61,7 +72,6 @@ class snake{
     void make_gate();
     bool collision();
     void move();
-    void make_map();
     
 
     public :

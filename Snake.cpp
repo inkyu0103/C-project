@@ -24,9 +24,7 @@ gatePos::gatePos(int g_col,int g_row){
     g_y = g_row;
 }
 
-void snake::make_map(){
-    
-}
+
 //for snake class
 snake::snake(){
     setlocale(LC_ALL,"");
@@ -238,7 +236,7 @@ bool snake::collision(){
 
    
     // 몸 길이가 2 이하인 경우
-
+    // 뱀 길이 설정, 좌표설정, 위치설정
 
     // 벽에 부딪힌 경우
     if(map[Rsnake[0].y][Rsnake[0].x]==1){
@@ -305,13 +303,6 @@ bool snake::collision(){
 
 }
 
-enum LayerType {
-    G1 = 0,
-    G2,
-    G3,
-    G4
-};
-
 void snake::make_gate(){
     srand((unsigned int)time(0));
     int firstLayer = rand()%4;
@@ -354,7 +345,7 @@ void snake::make_gate(){
             sgate.g_y = max_width-1;
             break;
         }
-        if (fgate.g_x != fgate.g_x || sgate.g_y != sgate.g_y) break;
+        if (fgate.g_x != sgate.g_x || fgate.g_y != sgate.g_y) break;
     }
 
     /* Set color gate */
@@ -372,6 +363,7 @@ void snake::make_gate(){
 void snake::move(){
 
     // 키를 입력 받습니다.
+    // Rsnake에서 하나 없어질 때 마다 Tempsnake에 하나 씩 그리기
     int key = getch();
 
     switch(key){
@@ -484,4 +476,3 @@ void snake::start(){
     }
 
 }
-
