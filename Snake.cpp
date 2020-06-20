@@ -2,7 +2,6 @@
 #include <time.h>
 using namespace std;
 
-
 //for snakeBody class
 snakeBody::snakeBody(){
     x=0;
@@ -10,7 +9,7 @@ snakeBody::snakeBody(){
 }
 
 
-snakeBody::snakeBody(int col, int row){
+snakeBody::snakeBody(int col, int row){ //아 첫번째 꺼를 x로 놔야하는구나;;; x,y좌표로 넣어놨네
     x=col;
     y=row;
 }
@@ -28,28 +27,31 @@ gatePos::gatePos(int g_col,int g_row){
 //for snake class
 snake::snake(){
     setlocale(LC_ALL,"");
-
+    
     // 뭔가 먹었니?
     get = false;
-
-
+    
     // 독 먹었니?
     poi = false;
+
+    //게이트를 통과했니?
+    enter_gate = false;
 
     // configurtaion initial size
     max_height = 23;
     max_width = 46;
-
-
-    initscr();
+    
+    
+    initscr(); 
     start_color();
 
     // 색깔 사용
     init_pair(1,COLOR_RED,COLOR_WHITE);
+    init_pair(2,COLOR_WHITE,COLOR_GREEN);
 
     keypad(stdscr,true);
     nodelay(stdscr,true);
-    curs_set(0);
+    curs_set(0); 
     noecho();
     resize_term(140,80);
     mvprintw(1,1,"C++ Project");
@@ -91,6 +93,7 @@ snake::snake(){
     mvwprintw(mission,5,3,"G : ( )");
     wborder(mission,'|','|','-','-','-','-','|','|');
     wrefresh(mission);
+
     // score window
     // score = newwin(8,20,20,55);
     // wbkgd(score,COLOR_PAIR(3));
@@ -98,11 +101,13 @@ snake::snake(){
     // wrefresh(score);
     // wborder(score,'','-','-','|','|','-','-','-');
     // mission window
-
+   
 
     // making map
     // Dynamic allocation
 
+
+    
     map = new int*[y];   // row 개만큼 할당 받고, 각 row마다 col개만큼 다시 할당받는다.
     for(int i=0;i<y;i++){
         map[i]=new int[x];
@@ -114,34 +119,32 @@ snake::snake(){
             // Wall
             if ((row==0 && col==0) || (row== 0 && col == x-1) || (row == y-1 && col == 0)|| (row == y-1 && col == x-1)){
                 map[row][col]=2;
-                mvwprintw(play,row,col,"x");
+                
             }
             // immune Wall
             else if(row == 0 || col == 0  || col == x-1 || row ==y-1 ){
                 map[row][col] = 1;
-                mvwprintw(play,row,col,"x");
             }
             // empty space
             else{
-                map[row][col]=0;
-                mvwprintw(play,row,col," ");
+                map[row][col] = 0;
 
             }
         }
     }
-
+    
 
 //seg fault
 // snake의 시작점 , 뱀 본체 준비
 for(int i=0;i<3;i++){
-        Rsnake.push_back(snakeBody(24+i,11));
+        Rsnake.push_back(snakeBody(24+i,11));  //24 가 x좌표고 ,11이 y좌표 
     }
 
 // 맵에 뱀을 그리는 과정
 for(int i=0;i<Rsnake.size();i++){
         mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"O");
         map[Rsnake[i].y][Rsnake[i].x] = 3;
-    }
+    }    
 
 //밥과 독을 놓읍시다.
     generatefood();
@@ -165,7 +168,7 @@ for(int i=0;i<Rsnake.size();i++){
     //  (3,3) ~ (48,3) 가로 최대
     //  (3,3) ~ (3,25) 세로 최대
     // 뱀 초기 길이 3
-
+    
 }
 
 snake::~snake(){
@@ -176,13 +179,9 @@ snake::~snake(){
 
 // 독을 만드는 과정
 void snake::generatepoison(){
-    Pstart_time = time(NULL);
-    mvwprintw(play,poison.y,poison.x," ");
-    wrefresh(play);
     while(true){
         int poison_x = rand()%(x-4)+2;
         int poison_y = rand()%(y-4)+2;
-
 
         // 독을 만들었는데, 그게 벽 위라면? 다시 만들어라
         if ( map[poison_y][poison_x] == 1 ||map[poison_y][poison_x] == 2 ){
@@ -210,9 +209,7 @@ void snake::generatepoison(){
 
 
 void snake::generatefood(){
-    Fstart_time = time(NULL);
-    mvwprintw(play,food.y,food.x," ");
-    wrefresh(play);
+    
     while(true){
         int food_x = rand()%(x-4)+2;
         int food_y = rand()%(y-4)+2;
@@ -228,7 +225,7 @@ void snake::generatefood(){
         }
         food.x = food_x;
         food.y = food_y;
-
+        
         //map[food.y][food.x] = 4;
         break;
     }
@@ -241,16 +238,21 @@ void snake::generatefood(){
 
 bool snake::collision(){
 
-
-    // 몸 길이가 2 이하인 경우
-    // 뱀 길이 설정, 좌표설정, 위치설정
-
+    
     // 벽에 부딪힌 경우
     if(map[Rsnake[0].y][Rsnake[0].x]==1){
-        // TODO :: 반대 게이트로 나오게
+    
         return true;
     }
 
+    // 게이트를 통과한 경우
+    if(map[Rsnake[0].y][Rsnake[0].x]==7){
+        enter_gate = true;
+        return false;
+    }
+
+
+    
     //뱀이 자기를 물은 경우
     for(int i=2;i<Rsnake.size();i++){
         if(Rsnake[0].x == Rsnake[i].x && Rsnake[0].y == Rsnake[i].y){
@@ -263,18 +265,19 @@ bool snake::collision(){
 
         generatepoison();
         poison_cnt+=1;
-        // point -=10;
         body_length = INIT_LENGTH + food_cnt - poison_cnt;
         current_speed += speed_interval;
-
+       
         if (body_length<3){
             return true;
         }
+
         mvwprintw(score,4,10,"%d",poison_cnt);
-        mvwprintw(score,2,10,"%d",body_length);
-        wrefresh(score);
-        mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
-        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x]=0;
+        mvwprintw(score,2,10,"%d",body_length); 
+        wrefresh(score); // 상태창 업데이트
+        
+        mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," "); //화면에 보이는 꼬리부분 지우기
+        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x]=0; // map[][]에 저장된 value를 0으로 바꾸기
         Rsnake.pop_back();
         usleep(current_speed);
 
@@ -285,7 +288,7 @@ bool snake::collision(){
     if((Rsnake[0].x==food.x) && (Rsnake[0].y == food.y)){
         //map[food.y][food.x] = 3;
 
-        generatefood();
+        generatefood(); 
         get = true;
         food_cnt+=1;
         // point +=10;
@@ -294,18 +297,17 @@ bool snake::collision(){
         // mvwprintw(score,2,16,"%d",point);
         mvwprintw(score,2,10,"%d",body_length);
         mvwprintw(score,3,10,"%d",food_cnt);
-        wrefresh(score);
-    // board에 점수 올라 가는 것 구현해야함
+        wrefresh(score); // 상태창 업데이트
         usleep(current_speed);
         return false;
 
     }
-
+    
     else{
        get=false;
     }
 
-
+    
     return false;
 
 }
@@ -320,53 +322,53 @@ void snake::make_gate(){
         switch ((enum LayerType)firstLayer)
         {
         case G1:
-            fgate.g_y = 1 + rand()%(max_width-4);    //gate1(0,rand)
+            fgate.g_y = 1 + rand()%(max_height-4);    //gate1(0,rand)
             break;
         case G2:
-            fgate.g_x = 1 + rand()%(max_height-4);    //gate2(rand,0)
+            fgate.g_x = 1 + rand()%(max_width-4);    //gate2(rand,0)
             break;
         case G3:
-            fgate.g_x = max_height-1;
-            fgate.g_y = 1 + rand()%(max_width-4);    //gate3(max,rand)
+            fgate.g_x = max_width-1;
+            fgate.g_y = 1 + rand()%(max_height-4);    //gate3(max,rand)
             break;
         case G4:
-            fgate.g_x = 1 + rand()%(max_height-4);    //gate4(rand,max)
-            fgate.g_y = max_width-1;
+            fgate.g_x = 1 + rand()%(max_width-4);    //gate4(rand,max)
+            fgate.g_y = max_height-1;
             break;
         }
 
         switch ((enum LayerType)secondLayer)
         {
         case G1:
-            sgate.g_y = 1 + rand()%(max_width-4);    //gate1(0,rand)
+            sgate.g_y = 1 + rand()%(max_height-4);    //gate1(0,rand)
             break;
         case G2:
-            sgate.g_x = 1 + rand()%(max_height-4);    //gate2(rand,0)
+            sgate.g_x = 1 + rand()%(max_width-4);    //gate2(rand,0)
             break;
         case G3:
-            sgate.g_x = max_height-1;
-            sgate.g_y = 1 + rand()%(max_width-4);    //gate3(max,rand)
+            sgate.g_x = max_width-1;
+            sgate.g_y = 1 + rand()%(max_height-4);    //gate3(max,rand)
             break;
         case G4:
-            sgate.g_x = 1 + rand()%(max_height-4);    //gate4(rand,max)
-            sgate.g_y = max_width-1;
+            sgate.g_x = 1 + rand()%(max_width-4);    //gate4(rand,max)
+            sgate.g_y = max_height-1;
             break;
         }
         if (fgate.g_x != sgate.g_x || fgate.g_y != sgate.g_y) break;
     }
 
+    /* set gate's value in map[][] */
+    map[fgate.g_y][fgate.g_x] = 7;
+    map[sgate.g_y][sgate.g_x] = 7;
+
+
     /* Set color gate */
-    mvwaddch(play,fgate.g_x,fgate.g_y,'X' | A_UNDERLINE | COLOR_PAIR(1));
-    mvwaddch(play,sgate.g_x,sgate.g_y,'X' | A_UNDERLINE | COLOR_PAIR(1));
+    mvwaddch(play,fgate.g_y,fgate.g_x,'X' | A_UNDERLINE | COLOR_PAIR(1));
+    mvwaddch(play,sgate.g_y,sgate.g_x,'X' | A_UNDERLINE | COLOR_PAIR(2)); // 확인을 위해 두번째 문은 초록색으로
 
     wrefresh(play);
 }
-    /*
-    밥 먹는 것은 여기서 처리를 하였는데, 독 먹는것도 move에서 어떻게든 처리를 해서 간결하게 해보려 했는데...
-    쉽지 않네요 ;ㅁ;
-    가능 하신 능력자분이 계신다면 부탁드려요.
 
-    */
 void snake::move(){
 
     // 키를 입력 받습니다.
@@ -381,7 +383,7 @@ void snake::move(){
             }
 				direction='l';
 			break;
-
+		
         case KEY_UP:
 			if(direction=='d'){
                 flag=1;
@@ -389,8 +391,8 @@ void snake::move(){
             }
 			direction='u';
 			break;
-
-
+		
+        
         case KEY_DOWN:
 			if(direction =='u'){
                 flag = 1;
@@ -398,8 +400,8 @@ void snake::move(){
             }
 			direction='d';
 			break;
-
-
+		
+        
         case KEY_RIGHT:
 			if(direction =='l'){
                 flag =1 ;
@@ -407,7 +409,7 @@ void snake::move(){
             }
 			direction='r';
 			break;
-
+		
     }
 
     // 벽에 부딪힌 것을 표현 하기 위해서 시도를 해봤는데, flag를 사용하는게 그나마 쉬운 것 같아서 사용했습니다.
@@ -416,58 +418,144 @@ void snake::move(){
 
     if(!get){
 		mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
-        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;  // 지나간 자리는 map에서 0으로 초기화
+        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;  
 		Rsnake.pop_back();
         wrefresh(play);
         }
-    if(direction=='l')
-	{
-		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x-1,Rsnake[0].y));
-        if(map[Rsnake[0].y][Rsnake[0].x]==1){
-            flag = 1;
+    
+
+    //get == true 인 경우 !get == false가 되어 이부분을 스킵하고 지나갑니다. (꼬리부분이 사라지지 않고 남음 ==> 길이가 1 증가됨.)
+    //get == false인 경우에는 !get == true가 되어 이부분을 수행합니다. (꼬리부분을 pop을 통해서 지웁니다. ==> 길이가 1 감소됨. )
+
+    //gate를 통과하는 경우도 !get == ture이기 때문에 꼬리가 하나 빠집니다. 그리고 그 꼬리는 
+
+    if(enter_gate){ //게이트를 통과한 경우
+
+        // 근데 그게 첫번 째 문에 부딪힌 경우
+        if(Rsnake[0].y == fgate.g_y && Rsnake[0].x == fgate.g_x){
+            
+
+            //두번째 문으로 나오자.
+            //두번 째 문이 어디있는지 알아야 한다. (어느 모서리에 있는지)
+            
+            // 왼쪽 모서리
+            if(sgate.g_x == 0){
+                direction = 'r';  //나오는 방향은 오른쪽
+                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x+1,sgate.g_y));
+                
+            }
+
+
+            //오른쪽 모서리
+            else if(sgate.g_x == max_width-1){
+                direction = 'l';
+                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x-1,sgate.g_y));
+                
+            }
+
+            // 남은건 아래 또는 위일텐데
+            // 위
+            else if(sgate.g_y == 0){
+                direction = 'd';
+                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x,sgate.g_y+1));  
+            }
+
+            //아래
+            else if(sgate.g_y == max_height-1){
+                direction = 'u';
+                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x,sgate.g_y-1));  
+            }
+
         }
-	}else if(direction=='r'){
-		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x+1,Rsnake[0].y));
-        if(map[Rsnake[0].y][Rsnake[0].x]==1){
-            flag = 1;
+        // 두번째 문에 부딪힌 경우
+        else if(Rsnake[0].y == sgate.g_y && Rsnake[0].x == sgate.g_x){
+            //첫번째 문으로 나오자.
+            // 왼쪽 모서리
+            if(fgate.g_x ==0){
+                direction = 'r';
+                Rsnake.insert(Rsnake.begin(),snakeBody(fgate.g_x+1,fgate.g_y));
+                
+            }
+
+
+            //오른쪽 모서리
+            else if(fgate.g_x == max_width-1){
+                direction = 'l';
+                Rsnake.insert(Rsnake.begin(),snakeBody(fgate.g_x-1,fgate.g_y));
+            }
+
+            // 남은건 아래 또는 위일텐데
+            // 위
+            else if(fgate.g_y == 0){
+                direction = 'd';
+                Rsnake.insert(Rsnake.begin(),snakeBody(fgate.g_x,fgate.g_y+1));
+            }
+
+            //아래
+            else if(fgate.g_y == max_height-1){
+                direction = 'u';
+                Rsnake.insert(Rsnake.begin(),snakeBody(fgate.g_x,fgate.g_y-1));
+            }
         }
 
-	}else if(direction=='u'){
-		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y-1));
-        if(map[Rsnake[0].y][Rsnake[0].x]==1){
-            flag = 1;
 
-        }
+    }else{
+        //아래 부분에서 하나 빠진 꼬리를 다시 헤드로 붙여줍니다. (Rsnake[0]이 바뀌게 됨)
+        if(direction=='l')
+	    {
+		    Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x-1,Rsnake[0].y));
+            if(map[Rsnake[0].y][Rsnake[0].x]==1){
+                flag = 1;
+            }
+	    }else if(direction=='r'){
+		    Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x+1,Rsnake[0].y));
+            if(map[Rsnake[0].y][Rsnake[0].x]==1){
+                flag = 1;
+            }
 
-	}else if(direction=='d'){
-		Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y+1));
-        if(map[Rsnake[0].y][Rsnake[0].x]==1){
-            flag = 1;
-        }
+	    }else if(direction=='u'){
+		    Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y-1));
+            if(map[Rsnake[0].y][Rsnake[0].x]==1){
+                flag = 1;
 
-	}
-    mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"O");
-    map[Rsnake[0].y][Rsnake[0].x]=3;
+            }
 
-    Fend_time = time(NULL);
-    if(Fend_time - Fstart_time >= 5){
-      generatefood();
+	    }else if(direction=='d'){
+	        	Rsnake.insert(Rsnake.begin(),snakeBody(Rsnake[0].x,Rsnake[0].y+1));
+                if(map[Rsnake[0].y][Rsnake[0].x]==1){
+                    flag = 1;
+                }
+     
+	    }
+
+
     }
-    Pend_time = time(NULL);
-    if(Pend_time - Pstart_time >= 5){
-      generatepoison();
-    }
+    //상태를 업데이트 합니다.
+        mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"O");
+        
+
+        /* set gate's value in map[][] */
+        map[fgate.g_y][fgate.g_x] = 7;
+        map[sgate.g_y][sgate.g_x] = 7;
+
+        wrefresh(play);
+
+        enter_gate =false;
+    
 
 
-
-    wrefresh(play);
 
 }
+//현재버그 
+// 1) 좌 우 모서리에 게이트가 생기는 경우만 통과할 수 있음 (해결)
+// 2) 한번 통과하면 게이트가 사라짐 (map정보는 업데이트를 해서 계속 왔다 갔다 할 수 있습니다. 여유있으시면 슬쩍 고쳐주세요.)
+// 3) 통과할 때 몸체가 하나 붙음 (실제로 붙는건 아니고 화면 상에서만 하나 더 붙음) (해결)  
+
 
 void snake::start(){
     make_gate();
 
-    while(true){
+    while(true){   
         if(collision()){
             wattron(play,COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -475,7 +563,7 @@ void snake::start(){
             break;
         }
         move();
-
+        
         if (flag==1){
             wattron(play, COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -488,8 +576,8 @@ void snake::start(){
 
         //usleep 값에따라 지렁이 속도가 달라집니다. 원하시는 대로 설정 해주세요.
         usleep(current_speed);
-
-
+        
+        
     }
 
 }
