@@ -33,7 +33,6 @@ enum LayerType {
 };
 
 class snake{
-    snake(int level = 0);
     
     vector<snakeBody> Rsnake;
     vector<snakeBody> Tempsnake;
@@ -75,13 +74,25 @@ class snake{
     void make_gate();
     bool collision();
     void move();
+
+    //미션을 위한 변수들
+    int mission_food;
+    int mission_poison;
+    int mission_gate;
+    char mission_food_complete;
+    char mission_poison_complete;
+    char mission_gate_complete;
+
+
+
     
 
     public :
     snake();
+    snake(int level = 1);
     ~snake(); // Because we allocate 2nd array for making map
-    void start();
-    
+    int start();
+    bool mission_clear();
 
 };
 
