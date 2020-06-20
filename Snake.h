@@ -6,6 +6,7 @@
 #include <unistd.h>//0
 #include<string>
 #include<time.h>
+#include<ctime>
 
 #ifndef SNAKE_H
 #define SNAKE_H
@@ -32,7 +33,7 @@ enum LayerType {
 };
 
 class snake{
-    
+
     vector<snakeBody> Rsnake;
     vector<snakeBody> Tempsnake;
     WINDOW * score;
@@ -44,27 +45,29 @@ class snake{
     int del;
     int point; //o
     int **map ; // o
-    int max_width; // o 
-    int max_height;// o 
-    int body_length; // 
+    int max_width; // o
+    int max_height;// o
+    int body_length; //
     int food_cnt;   //먹이 먹은 갯수
     int poison_cnt; //독 먹은 갯수
     int gate_cnt;   //gate 사용횟수
     int speed_interval;
     int current_speed;
-    char direction; // o 
+    char direction; // o
     bool get;
     bool poi;
     gatePos fgate;
     gatePos sgate;
     int fline;
     int sline;
-    time_t start_time;
-    time_t end_time;
+    time_t Fstart_time;
+    time_t Fend_time;
+    time_t Pstart_time;
+    time_t Pend_time;
     double result;
     // snake's food
     snakeBody food; // o
-    snakeBody poison; 
+    snakeBody poison;
     gatePos gate;
     char food_char;
     void generatefood();
@@ -72,13 +75,13 @@ class snake{
     void make_gate();
     bool collision();
     void move();
-    
+
 
     public :
     snake();
     ~snake(); // Because we allocate 2nd array for making map
     void start();
-    
+
 
 };
 

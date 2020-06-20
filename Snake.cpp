@@ -28,19 +28,20 @@ gatePos::gatePos(int g_col,int g_row){
 //for snake class
 snake::snake(){
     setlocale(LC_ALL,"");
-    
+
     // 뭔가 먹었니?
     get = false;
-    
+
+
     // 독 먹었니?
     poi = false;
 
     // configurtaion initial size
     max_height = 23;
     max_width = 46;
-    
-    
-    initscr(); 
+
+
+    initscr();
     start_color();
 
     // 색깔 사용
@@ -48,7 +49,7 @@ snake::snake(){
 
     keypad(stdscr,true);
     nodelay(stdscr,true);
-    curs_set(0); 
+    curs_set(0);
     noecho();
     resize_term(140,80);
     mvprintw(1,1,"C++ Project");
@@ -97,11 +98,11 @@ snake::snake(){
     // wrefresh(score);
     // wborder(score,'','-','-','|','|','-','-','-');
     // mission window
-   
+
 
     // making map
     // Dynamic allocation
-    
+
     map = new int*[y];   // row 개만큼 할당 받고, 각 row마다 col개만큼 다시 할당받는다.
     for(int i=0;i<y;i++){
         map[i]=new int[x];
@@ -118,29 +119,29 @@ snake::snake(){
             // immune Wall
             else if(row == 0 || col == 0  || col == x-1 || row ==y-1 ){
                 map[row][col] = 1;
-                mvwprintw(play,row,col,"x");  
+                mvwprintw(play,row,col,"x");
             }
             // empty space
             else{
                 map[row][col]=0;
-                mvwprintw(play,row,col," ");  
+                mvwprintw(play,row,col," ");
 
             }
         }
     }
-    
+
 
 //seg fault
 // snake의 시작점 , 뱀 본체 준비
 for(int i=0;i<3;i++){
-        Rsnake.push_back(snakeBody(24+i,11)); 
+        Rsnake.push_back(snakeBody(24+i,11));
     }
 
 // 맵에 뱀을 그리는 과정
 for(int i=0;i<Rsnake.size();i++){
         mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"O");
         map[Rsnake[i].y][Rsnake[i].x] = 3;
-    }    
+    }
 
 //밥과 독을 놓읍시다.
     generatefood();
@@ -164,7 +165,7 @@ for(int i=0;i<Rsnake.size();i++){
     //  (3,3) ~ (48,3) 가로 최대
     //  (3,3) ~ (3,25) 세로 최대
     // 뱀 초기 길이 3
-    
+
 }
 
 snake::~snake(){
@@ -175,9 +176,13 @@ snake::~snake(){
 
 // 독을 만드는 과정
 void snake::generatepoison(){
+    Pstart_time = time(NULL);
+    mvwprintw(play,poison.y,poison.x," ");
+    wrefresh(play);
     while(true){
         int poison_x = rand()%(x-4)+2;
         int poison_y = rand()%(y-4)+2;
+
 
         // 독을 만들었는데, 그게 벽 위라면? 다시 만들어라
         if ( map[poison_y][poison_x] == 1 ||map[poison_y][poison_x] == 2 ){
@@ -205,7 +210,9 @@ void snake::generatepoison(){
 
 
 void snake::generatefood(){
-    
+    Fstart_time = time(NULL);
+    mvwprintw(play,food.y,food.x," ");
+    wrefresh(play);
     while(true){
         int food_x = rand()%(x-4)+2;
         int food_y = rand()%(y-4)+2;
@@ -221,7 +228,7 @@ void snake::generatefood(){
         }
         food.x = food_x;
         food.y = food_y;
-        
+
         //map[food.y][food.x] = 4;
         break;
     }
@@ -234,7 +241,7 @@ void snake::generatefood(){
 
 bool snake::collision(){
 
-   
+
     // 몸 길이가 2 이하인 경우
     // 뱀 길이 설정, 좌표설정, 위치설정
 
@@ -243,7 +250,7 @@ bool snake::collision(){
         // TODO :: 반대 게이트로 나오게
         return true;
     }
-    
+
     //뱀이 자기를 물은 경우
     for(int i=2;i<Rsnake.size();i++){
         if(Rsnake[0].x == Rsnake[i].x && Rsnake[0].y == Rsnake[i].y){
@@ -259,7 +266,7 @@ bool snake::collision(){
         // point -=10;
         body_length = INIT_LENGTH + food_cnt - poison_cnt;
         current_speed += speed_interval;
-       
+
         if (body_length<3){
             return true;
         }
@@ -278,7 +285,7 @@ bool snake::collision(){
     if((Rsnake[0].x==food.x) && (Rsnake[0].y == food.y)){
         //map[food.y][food.x] = 3;
 
-        generatefood(); 
+        generatefood();
         get = true;
         food_cnt+=1;
         // point +=10;
@@ -293,12 +300,12 @@ bool snake::collision(){
         return false;
 
     }
-    
+
     else{
        get=false;
     }
 
-    
+
     return false;
 
 }
@@ -356,9 +363,9 @@ void snake::make_gate(){
 }
     /*
     밥 먹는 것은 여기서 처리를 하였는데, 독 먹는것도 move에서 어떻게든 처리를 해서 간결하게 해보려 했는데...
-    쉽지 않네요 ;ㅁ; 
+    쉽지 않네요 ;ㅁ;
     가능 하신 능력자분이 계신다면 부탁드려요.
-    
+
     */
 void snake::move(){
 
@@ -374,7 +381,7 @@ void snake::move(){
             }
 				direction='l';
 			break;
-		
+
         case KEY_UP:
 			if(direction=='d'){
                 flag=1;
@@ -382,8 +389,8 @@ void snake::move(){
             }
 			direction='u';
 			break;
-		
-        
+
+
         case KEY_DOWN:
 			if(direction =='u'){
                 flag = 1;
@@ -391,8 +398,8 @@ void snake::move(){
             }
 			direction='d';
 			break;
-		
-        
+
+
         case KEY_RIGHT:
 			if(direction =='l'){
                 flag =1 ;
@@ -400,7 +407,7 @@ void snake::move(){
             }
 			direction='r';
 			break;
-		
+
     }
 
     // 벽에 부딪힌 것을 표현 하기 위해서 시도를 해봤는데, flag를 사용하는게 그나마 쉬운 것 같아서 사용했습니다.
@@ -437,12 +444,22 @@ void snake::move(){
         if(map[Rsnake[0].y][Rsnake[0].x]==1){
             flag = 1;
         }
-     
+
 	}
     mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"O");
     map[Rsnake[0].y][Rsnake[0].x]=3;
-    
-    
+
+    Fend_time = time(NULL);
+    if(Fend_time - Fstart_time >= 5){
+      generatefood();
+    }
+    Pend_time = time(NULL);
+    if(Pend_time - Pstart_time >= 5){
+      generatepoison();
+    }
+
+
+
     wrefresh(play);
 
 }
@@ -450,7 +467,7 @@ void snake::move(){
 void snake::start(){
     make_gate();
 
-    while(true){   
+    while(true){
         if(collision()){
             wattron(play,COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -458,7 +475,7 @@ void snake::start(){
             break;
         }
         move();
-        
+
         if (flag==1){
             wattron(play, COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -471,8 +488,8 @@ void snake::start(){
 
         //usleep 값에따라 지렁이 속도가 달라집니다. 원하시는 대로 설정 해주세요.
         usleep(current_speed);
-        
-        
+
+
     }
 
 }
