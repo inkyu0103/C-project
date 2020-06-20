@@ -29,7 +29,7 @@ int main(){
 
     snake s4(4);
     s4.start();
-    retun0;
+    return 0;
 
     
 
