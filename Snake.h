@@ -83,7 +83,12 @@ class snake{
     char mission_poison_complete;
     char mission_gate_complete;
 
+    // 시간을 위한 변수들
 
+    int food_start_time;
+    int poison_start_time;
+    int food_end_time;
+    int poison_end_time;
 
     
 
