@@ -55,7 +55,7 @@ snake::snake(int level){
     wborder(play,'x','x','x','x','x','x','x','x');
     wrefresh(play);
 
-    // map 할
+    // map 할당
     if(level == 1){
         mvprintw(1,20,"STAGE 1");
 
@@ -81,10 +81,13 @@ snake::snake(int level){
                     map[row][col] = 1;
                 }
                 // empty space
+
+                
+
                 else{
                     map[row][col] = 0;
-
                 }
+
             }
         }
     }
@@ -112,7 +115,13 @@ snake::snake(int level){
                 // immune Wall
                 else if(row == 0 || col == 0  || col == x-1 || row ==y-1 ){
                     map[row][col] = 1;
+                    
                 }
+                else if(row%5==0 && col%5==0){
+                    map[row][col] = 1;
+                    mvwprintw(play,row,col,"X");
+                }
+
                 // empty space
                 else{
                     map[row][col] = 0;
@@ -146,6 +155,14 @@ snake::snake(int level){
                 else if(row == 0 || col == 0  || col == x-1 || row ==y-1 ){
                     map[row][col] = 1;
                 }
+                //테스트를 위한 추가
+
+                else if( col%8 ==0 && row <10 || col%6 == 0 && row>11){
+                    map[row][col] = 1;
+                    mvwprintw(play,row,col,"x");
+                }
+
+
                 // empty space
                 else{
                     map[row][col] = 0;
@@ -176,9 +193,15 @@ snake::snake(int level){
 
                 }
                 // immune Wall
-                else if(row == 0 || col == 0  || col == x-1 || row ==y-1 ){
+                else if(row == 0 || col == 0  || col == x-1 || row ==y-1 || ( col%6==0 && row % 8==0 ) ){
                     map[row][col] = 1;
                 }
+                
+                else if( col<20 && row % 3 ==0 || row % 3 ==2 && col > 23){
+                     map[row][col] = 1;
+                    mvwprintw(play,row,col,"x");
+                }
+
                 // empty space
                 else{
                     map[row][col] = 0;
@@ -198,6 +221,8 @@ snake::snake(int level){
     food_cnt = 0;
     poison_cnt = 0;
     gate_cnt = 0;
+    food_start_time;
+    poison_start_time;
     mission_food_complete = ' '; // 미션 완료 표시
     mission_poison_complete = ' '; // 미션 완료 표시 --> 조건을 충족하면 food 나 poision 쪽에서 'v'로 바꿔줄겁니다.
     mission_gate_complete = ' ';
@@ -279,6 +304,7 @@ snake::~snake(){
 
 // 독을 만드는 과정
 void snake::generatepoison(){
+
     while(true){
         int poison_x = rand()%(x-4)+2;
         int poison_y = rand()%(y-4)+2;
@@ -300,7 +326,8 @@ void snake::generatepoison(){
         //map[food.y][food.x] = 4;
         break;
     }
-
+    
+    poison_start_time = time(NULL); 
     mvwprintw(play,poison.y,poison.x,"-"); // 독 추가
     wrefresh(play);  // 독 업데이트
 }
@@ -329,7 +356,7 @@ void snake::generatefood(){
         //map[food.y][food.x] = 4;
         break;
     }
-
+    food_start_time = time(NULL); 
     mvwprintw(play,food.y,food.x,"+"); // 음식 추가
     wrefresh(play);  // 음식 업데이트
 
@@ -365,7 +392,6 @@ bool snake::collision(){
 
     //독을 먹은 경우
     if((Rsnake[0].x==poison.x) && (Rsnake[0].y == poison.y)){
-
         generatepoison();
         poison_cnt+=1;
         
@@ -391,7 +417,6 @@ bool snake::collision(){
     //밥을 먹은 경우
     if((Rsnake[0].x==food.x) && (Rsnake[0].y == food.y)){
         //map[food.y][food.x] = 3;
-
         generatefood(); 
         get = true;
         food_cnt+=1;
@@ -524,6 +549,7 @@ void snake::move(){
         map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;  
 		Rsnake.pop_back();
         wrefresh(play);
+
         }
     
 
@@ -658,7 +684,18 @@ void snake::move(){
 
         }
 
-        
+        food_end_time = time(NULL);
+        poison_end_time = time(NULL);
+        if(poison_end_time-poison_start_time>5){
+            mvwprintw(play,poison.y,poison.x," ");
+            generatepoison();
+        }
+
+        if(food_end_time-food_start_time>5){
+            mvwprintw(play,food.y, food.x," ");
+            generatefood();
+        }
+
 
         wrefresh(mission);
         wrefresh(play);
@@ -675,7 +712,7 @@ void snake::move(){
 // 3) 통과할 때 몸체가 하나 붙음 (실제로 붙는건 아니고 화면 상에서만 하나 더 붙음) (해결)  
 
 bool snake::mission_clear(){
-    if (mission_food == food_cnt && mission_poison == poison_cnt && mission_gate == gate_cnt){
+    if (mission_food == food_cnt && mission_poison == poison_cnt && mission_gate >= gate_cnt){
         return true;
     }
     return false;
@@ -703,7 +740,7 @@ int snake::start(){
         if(mission_clear()){
             mvwprintw(play,10,19,"S T A G E C L E A R !");
             wrefresh(play);
-            //잠시 쉽시다.
+            //잠시
             usleep(3300000);
             return 1;
         }
