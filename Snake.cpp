@@ -27,9 +27,9 @@ gatePos::gatePos(int g_col,int g_row){
 //for snake class
 snake::snake(int level){
 
-    
+
     setlocale(LC_ALL,"");
-    initscr(); 
+    initscr();
     start_color();
 
     // 사용할 색 목록
@@ -38,7 +38,7 @@ snake::snake(int level){
 
     keypad(stdscr,true);
     nodelay(stdscr,true);
-    curs_set(0); 
+    curs_set(0);
     noecho();
     resize_term(140,80);
     mvprintw(1,1,"C++ Project");
@@ -82,7 +82,7 @@ snake::snake(int level){
                 }
                 // empty space
 
-                
+
 
                 else{
                     map[row][col] = 0;
@@ -115,7 +115,7 @@ snake::snake(int level){
                 // immune Wall
                 else if(row == 0 || col == 0  || col == x-1 || row ==y-1 ){
                     map[row][col] = 1;
-                    
+
                 }
                 else if(row%5==0 && col%5==0){
                     map[row][col] = 1;
@@ -130,7 +130,7 @@ snake::snake(int level){
             }
         }
     }
-    
+
     else if (level ==3 ){
         mvprintw(1,20,"STAGE 3");
 
@@ -196,7 +196,7 @@ snake::snake(int level){
                 else if(row == 0 || col == 0  || col == x-1 || row ==y-1 || ( col%6==0 && row % 8==0 ) ){
                     map[row][col] = 1;
                 }
-                
+
                 else if( col<20 && row % 3 ==0 || row % 3 ==2 && col > 23){
                      map[row][col] = 1;
                     mvwprintw(play,row,col,"x");
@@ -241,18 +241,18 @@ snake::snake(int level){
     mvwprintw(mission,2,3,"B : ()");
     mvwprintw(mission,3,3,"+ : %d (%c)",mission_food,mission_food_complete);
     mvwprintw(mission,4,3,"- : %d (%c)",mission_poison,mission_poison_complete);
-    mvwprintw(mission,5,3,"G : %d (%c)",gate_cnt,mission_gate_complete);
+    mvwprintw(mission,5,3,"G : %d (%c)",mission_gate,mission_gate_complete);
     wborder(mission,'|','|','-','-','-','-','|','|');
     wrefresh(mission);
 
-  
 
 
 
-    
+
+
 // 뭔가 먹었니?
     get = false;
-    
+
 // 독 먹었니?
     poi = false;
 
@@ -262,14 +262,14 @@ snake::snake(int level){
 //seg fault
 // snake의 시작점 , 뱀 본체 준비
 for(int i=0;i<3;i++){
-        Rsnake.push_back(snakeBody(24+i,11));  //24 가 x좌표고 ,11이 y좌표 
+        Rsnake.push_back(snakeBody(24+i,11));  //24 가 x좌표고 ,11이 y좌표
     }
 
 // 맵에 뱀을 그리는 과정
 for(int i=0;i<Rsnake.size();i++){
         mvwprintw(play,Rsnake[i].y,Rsnake[i].x,"O");
         map[Rsnake[i].y][Rsnake[i].x] = 3;
-    }    
+    }
 
 //밥과 독을 놓읍시다.
     generatefood();
@@ -293,7 +293,7 @@ for(int i=0;i<Rsnake.size();i++){
     //  (3,3) ~ (48,3) 가로 최대
     //  (3,3) ~ (3,25) 세로 최대
     // 뱀 초기 길이 3
-    
+
 }
 
 snake::~snake(){
@@ -326,8 +326,8 @@ void snake::generatepoison(){
         //map[food.y][food.x] = 4;
         break;
     }
-    
-    poison_start_time = time(NULL); 
+
+    poison_start_time = time(NULL);
     mvwprintw(play,poison.y,poison.x,"-"); // 독 추가
     wrefresh(play);  // 독 업데이트
 }
@@ -336,7 +336,7 @@ void snake::generatepoison(){
 
 
 void snake::generatefood(){
-    
+
     while(true){
         int food_x = rand()%(x-4)+2;
         int food_y = rand()%(y-4)+2;
@@ -352,11 +352,11 @@ void snake::generatefood(){
         }
         food.x = food_x;
         food.y = food_y;
-        
+
         //map[food.y][food.x] = 4;
         break;
     }
-    food_start_time = time(NULL); 
+    food_start_time = time(NULL);
     mvwprintw(play,food.y,food.x,"+"); // 음식 추가
     wrefresh(play);  // 음식 업데이트
 
@@ -365,10 +365,10 @@ void snake::generatefood(){
 
 bool snake::collision(){
 
-    
+
     // 벽에 부딪힌 경우
     if(map[Rsnake[0].y][Rsnake[0].x]==1){
-    
+
         return true;
     }
 
@@ -382,7 +382,7 @@ bool snake::collision(){
     }
 
 
-    
+
     //뱀이 자기를 물은 경우
     for(int i=2;i<Rsnake.size();i++){
         if(Rsnake[0].x == Rsnake[i].x && Rsnake[0].y == Rsnake[i].y){
@@ -394,18 +394,18 @@ bool snake::collision(){
     if((Rsnake[0].x==poison.x) && (Rsnake[0].y == poison.y)){
         generatepoison();
         poison_cnt+=1;
-        
+
         body_length = INIT_LENGTH + food_cnt - poison_cnt;
         current_speed += speed_interval;
-       
+
         if (body_length<3){
             return true;
         }
 
         mvwprintw(score,4,10,"%d",poison_cnt);
-        mvwprintw(score,2,10,"%d",body_length); 
+        mvwprintw(score,2,10,"%d",body_length);
         wrefresh(score); // 상태창 업데이트
-        
+
         mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," "); //화면에 보이는 꼬리부분 지우기
         map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x]=0; // map[][]에 저장된 value를 0으로 바꾸기
         Rsnake.pop_back();
@@ -417,10 +417,10 @@ bool snake::collision(){
     //밥을 먹은 경우
     if((Rsnake[0].x==food.x) && (Rsnake[0].y == food.y)){
         //map[food.y][food.x] = 3;
-        generatefood(); 
+        generatefood();
         get = true;
         food_cnt+=1;
-        
+
         body_length = INIT_LENGTH + food_cnt - poison_cnt;
         current_speed -= speed_interval;
         mvwprintw(score,2,10,"%d",body_length);
@@ -430,12 +430,12 @@ bool snake::collision(){
         return false;
 
     }
-    
+
     else{
        get=false;
     }
 
-    
+
     return false;
 
 }
@@ -511,7 +511,7 @@ void snake::move(){
             }
 				direction='l';
 			break;
-		
+
         case KEY_UP:
 			if(direction=='d'){
                 flag=1;
@@ -519,8 +519,8 @@ void snake::move(){
             }
 			direction='u';
 			break;
-		
-        
+
+
         case KEY_DOWN:
 			if(direction =='u'){
                 flag = 1;
@@ -528,8 +528,8 @@ void snake::move(){
             }
 			direction='d';
 			break;
-		
-        
+
+
         case KEY_RIGHT:
 			if(direction =='l'){
                 flag =1 ;
@@ -537,7 +537,7 @@ void snake::move(){
             }
 			direction='r';
 			break;
-		
+
     }
 
     // 벽에 부딪힌 것을 표현 하기 위해서 시도를 해봤는데, flag를 사용하는게 그나마 쉬운 것 같아서 사용했습니다.
@@ -546,32 +546,32 @@ void snake::move(){
 
     if(!get){
 		mvwprintw(play,Rsnake[Rsnake.size()-1].y,Rsnake[Rsnake.size()-1].x," ");
-        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;  
+        map[Rsnake[Rsnake.size()-1].y][Rsnake[Rsnake.size()-1].x] = 0;
 		Rsnake.pop_back();
         wrefresh(play);
 
         }
-    
+
 
     //get == true 인 경우 !get == false가 되어 이부분을 스킵하고 지나갑니다. (꼬리부분이 사라지지 않고 남음 ==> 길이가 1 증가됨.)
     //get == false인 경우에는 !get == true가 되어 이부분을 수행합니다. (꼬리부분을 pop을 통해서 지웁니다. ==> 길이가 1 감소됨. )
 
-    //gate를 통과하는 경우도 !get == ture이기 때문에 꼬리가 하나 빠집니다. 그리고 그 꼬리는 
+    //gate를 통과하는 경우도 !get == ture이기 때문에 꼬리가 하나 빠집니다. 그리고 그 꼬리는
 
     if(enter_gate){ //게이트를 통과한 경우
 
         // 근데 그게 첫번 째 문에 부딪힌 경우
         if(Rsnake[0].y == fgate.g_y && Rsnake[0].x == fgate.g_x){
-            
+
 
             //두번째 문으로 나오자.
             //두번 째 문이 어디있는지 알아야 한다. (어느 모서리에 있는지)
-            
+
             // 왼쪽 모서리
             if(sgate.g_x == 0){
                 direction = 'r';  //나오는 방향은 오른쪽
                 Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x+1,sgate.g_y));
-                
+
             }
 
 
@@ -579,20 +579,20 @@ void snake::move(){
             else if(sgate.g_x == max_width-1){
                 direction = 'l';
                 Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x-1,sgate.g_y));
-                
+
             }
 
             // 남은건 아래 또는 위일텐데
             // 위
             else if(sgate.g_y == 0){
                 direction = 'd';
-                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x,sgate.g_y+1));  
+                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x,sgate.g_y+1));
             }
 
             //아래
             else if(sgate.g_y == max_height-1){
                 direction = 'u';
-                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x,sgate.g_y-1));  
+                Rsnake.insert(Rsnake.begin(),snakeBody(sgate.g_x,sgate.g_y-1));
             }
 
         }
@@ -603,7 +603,7 @@ void snake::move(){
             if(fgate.g_x ==0){
                 direction = 'r';
                 Rsnake.insert(Rsnake.begin(),snakeBody(fgate.g_x+1,fgate.g_y));
-                
+
             }
 
 
@@ -654,14 +654,14 @@ void snake::move(){
                 if(map[Rsnake[0].y][Rsnake[0].x]==1){
                     flag = 1;
                 }
-     
+
 	    }
 
 
     }
     //상태를 업데이트 합니다.
         mvwprintw(play,Rsnake[0].y,Rsnake[0].x,"O");
-        
+
 
         /* set gate's value in map[][] */
         map[fgate.g_y][fgate.g_x] = 7;
@@ -672,7 +672,7 @@ void snake::move(){
         if (food_cnt == mission_food){
             mission_food_complete = 'v';
             mvwprintw(mission,3,3,"+ : %d (%c)",mission_food,mission_food_complete);
-            
+
         }
         if(poison_cnt == mission_poison){
             mission_poison_complete='v';
@@ -680,7 +680,7 @@ void snake::move(){
         }
         if(gate_cnt >= mission_gate){
             mission_gate_complete='v';
-            mvwprintw(mission,5,3,"- : %d (%c)",mission_gate,mission_gate_complete);
+            mvwprintw(mission,5,3,"G : %d (%c)",mission_gate,mission_gate_complete);
 
         }
 
@@ -701,18 +701,18 @@ void snake::move(){
         wrefresh(play);
 
         enter_gate =false;
-    
+
 
 
 
 }
-//현재버그 
+//현재버그
 // 1) 좌 우 모서리에 게이트가 생기는 경우만 통과할 수 있음 (해결)
 // 2) 한번 통과하면 게이트가 사라짐 (map정보는 업데이트를 해서 계속 왔다 갔다 할 수 있습니다. 여유있으시면 슬쩍 고쳐주세요.)
-// 3) 통과할 때 몸체가 하나 붙음 (실제로 붙는건 아니고 화면 상에서만 하나 더 붙음) (해결)  
+// 3) 통과할 때 몸체가 하나 붙음 (실제로 붙는건 아니고 화면 상에서만 하나 더 붙음) (해결)
 
 bool snake::mission_clear(){
-    if (mission_food == food_cnt && mission_poison == poison_cnt && mission_gate >= gate_cnt){
+    if (mission_food <= food_cnt && mission_poison <= poison_cnt && mission_gate <= gate_cnt){
         return true;
     }
     return false;
@@ -721,7 +721,7 @@ bool snake::mission_clear(){
 int snake::start(){
     make_gate();
 
-    while(true){   
+    while(true){
         if(collision()){
             wattron(play,COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -729,7 +729,7 @@ int snake::start(){
             break;
         }
         move();
-        
+
         if (flag==1){
             wattron(play, COLOR_PAIR(1));
             mvwprintw(play,10,19,"G A M E O V E R");
@@ -751,6 +751,6 @@ int snake::start(){
         usleep(current_speed);
     }
     return 0;
-    
-       
+
+
 }
