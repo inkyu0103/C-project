@@ -505,40 +505,38 @@ void snake::move(){
 
     switch(key){
         case KEY_LEFT:
-			if(direction =='r'){
-                flag =1;
-                break;
-            }
-				direction='l';
-			break;
+		if(direction =='r'){
+                	flag =1;
+                	break;
+            	}
+		direction='l';
+		break;
 
         case KEY_UP:
-			if(direction=='d'){
-                flag=1;
-                break;
-            }
-			direction='u';
-			break;
-
-
+		if(direction=='d'){
+                	flag=1;
+                	break;
+            	}
+		direction='u';
+		break;
+		    
         case KEY_DOWN:
-			if(direction =='u'){
+		if(direction =='u'){
                 flag = 1;
                 break;
-            }
-			direction='d';
-			break;
-
+            	}
+		direction='d';
+		break;
 
         case KEY_RIGHT:
-			if(direction =='l'){
-                flag =1 ;
-                break;
-            }
-			direction='r';
-			break;
+		if(direction =='l'){
+                	flag =1 ;
+                	break;
+            	}
+		direction='r';
+		break;
 
-    }
+    	}
 
     // 벽에 부딪힌 것을 표현 하기 위해서 시도를 해봤는데, flag를 사용하는게 그나마 쉬운 것 같아서 사용했습니다.
     // flag == > 벽에 부딪혔니? --> flag가 1이면 맨 아래의 start() 함수에서 break를 통해 게임이 끝나게 됩니다.
